@@ -1,4 +1,5 @@
 import torch
+import argparse
 import os
 import torch.nn as nn
 import torch.nn.functional as F
@@ -82,9 +83,14 @@ def estimate():
 
 if __name__=='__main__':
     device='cuda' if torch.cuda.is_available() else 'cpu'
-    feature=128
-    num_layer=3
-    num_model=1
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--feature',type=int)
+    parser.add_argument('--num_layer',type=int)
+    parser.add_argument('--num_model',type=int)
+    args=parser.parse_args()
+    feature=args.feature
+    num_layer=args.num_layer
+    num_model=args.num_model
     print(f'{device=},{feature=},{num_layer=},{num_model=}')
     model=Model(feature=feature,num_layer=num_layer,num_model=num_model).to(device)
     writer={}
@@ -95,7 +101,7 @@ if __name__=='__main__':
     esp=1
     epochs=1000
     est_epochs=200
-    savefolder='out'
+    savefolder=f'data/{num_model}_{num_layer}_{feature}'
     os.makedirs(savefolder,exist_ok=True)
     for e in range(epochs):
         train()
