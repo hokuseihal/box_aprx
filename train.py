@@ -90,7 +90,7 @@ if __name__=='__main__':
     os.makedirs(savefolder,exist_ok=True)
     data=torch.rand(116)
     for e in range(epochs):
-        # operate('train')
-        # operate('val')
-        # save(model,savefolder,writer,f'')
-        estimate()
+        operate('train')
+        operate('val')
+        save(model,savefolder,writer,f'')
+        # estimate()
