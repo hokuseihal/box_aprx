@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from test.datatest import datatest
 from core import addvalue, save
 from model.FC_Resnet import fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152
 
@@ -23,6 +23,7 @@ class InputParam(nn.Module):
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, root):
+        datatest(root)
         self.data = glob.glob(f'{root}/[!error]*.pkl')
         self.thresh = 5
 
