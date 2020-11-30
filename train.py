@@ -24,10 +24,20 @@ class InputParam(nn.Module):
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, root):
+    def __init__(self, root,thresh=np.inf):
         datatest(root)
-        self.data = glob.glob(f'{root}/[!error]*.pkl')
-        self.thresh = 5
+        _data=[]
+        with open(f'{root}/.okdata') as f:
+            lines=f.readlines()
+        for i in range(len(lines)//2):
+            p,m=lines[i*2:(i+1)*2]
+            p=p.strip()
+            m=np.float(m)
+            if thresh>m:
+                _data.append(p)
+                print(p,m)
+        self.data = _data
+        self.thresh = thresh
 
     def __len__(self):
         return len(self.data)
@@ -35,7 +45,8 @@ class Dataset(torch.utils.data.Dataset):
     def __getitem__(self, item):
         with open(self.data[item], 'rb') as f:
             data, target = pickle.load(f)
-        target[target > self.thresh] = self.thresh
+        if self.thresh:
+            target[target > self.thresh] = self.thresh
         return data.astype(np.float32), target.astype(np.float32)
 
 
@@ -80,13 +91,14 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument('--linux',default=False,action='store_true')
+    parser.add_argument('--thresh',default=np.inf,type=float)
     args=parser.parse_args()
     device='cuda' if torch.cuda.is_available() else 'cpu'
     model=fc_resnet18().to(device)
     writer={}
     esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3') if not args.linux else Dataset('../data/doboku/box_aprx/data3')
+    dataset=Dataset('J:/data3',args.thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',args.thresh)
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
