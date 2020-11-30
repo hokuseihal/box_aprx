@@ -14,11 +14,13 @@ from model.FC_Resnet import fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_
 
 
 class InputParam(nn.Module):
-    def __init__(self, data):
+    def __init__(self, data,device,optimizable=64):
         super(InputParam, self).__init__()
-        self.optimizable=np.zeros(56,dtype=np.bool)
-        self.optimizable[3:14]=True
-        self.data=torch.stack([nn.Parameter(torch.rand(1),requires_grad=self.optimizable[i]) for i in range(56)])
+        self.optimazable_data=nn.Parameter(torch.tensor(data[:optimizable]))
+        self.freeze_data=torch.tensor(data[optimizable:])
+        self.data=torch.cat([self.optimazable_data,self.freeze_data]).unsqueeze(0).to(device)
+    def forward(self):
+        return -F.threshold(F.relu(self.data),-1,-1)
 
 
 class Dataset(torch.utils.data.Dataset):
@@ -60,38 +62,43 @@ def estimate():
     def okng(output):
         return F.relu(output-1).mean()
     model.eval()
-    inputparam = InputParam(data)
-    data_optimizer = torch.optim.Adam(inputparam.parameters())
+    inputparam = InputParam(data,device=device)
+    data_optimizer = torch.optim.Adam(inputparam.parameters(),lr=0.1)
     for idx in range(est_epochs):
-        output = model(inputparam.data)
+        output = model(inputparam.data)[-1]
         loss = okng(output)
         loss.backward()
         data_optimizer.step()
         data_optimizer.zero_grad()
-
-    print(inputparam.data)
+        print(idx,f'est, {loss.item()}')
+        if loss<esp:
+            print('optimazation is finished.')
+            print(inputparam.data)
+            exit()
 
 if __name__=='__main__':
-    device='cuda' if torch.cuda.is_available() else 'cpu'
+    import argparse
     parser=argparse.ArgumentParser()
+    parser.add_argument('--linux',default=False,action='store_true')
     args=parser.parse_args()
+    device='cuda' if torch.cuda.is_available() else 'cpu'
     model=fc_resnet18().to(device)
     writer={}
+    esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3')
+    dataset=Dataset('J:/data3') if not args.linux else Dataset('../data/doboku/box_aprx/data3')
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     optimizer=torch.optim.Adam(model.parameters())
     lossf=nn.MSELoss()
-    esp=1
-    epochs=1000
+    epochs=100
     est_epochs=200
-    savefolder=f'data/FC_152'
+    savefolder=f'data/tmp'
     os.makedirs(savefolder,exist_ok=True)
     data=torch.rand(116)
     for e in range(epochs):
         operate('train')
         operate('val')
         save(model,savefolder,writer,f'')
-        # estimate()
+    estimate()
