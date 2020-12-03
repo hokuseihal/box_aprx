@@ -95,6 +95,7 @@ if __name__=='__main__':
     parser.add_argument('--cut_thresh',default=np.inf,type=float)
     parser.add_argument('--savefolder',default='tmp')
     parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101,, 4:fc_resnet151')
+    parser.add_argument('--batchsize',default=256)
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
