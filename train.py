@@ -24,7 +24,7 @@ class InputParam(nn.Module):
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, root,thresh=np.inf):
+    def __init__(self, root, cut_thresh=np.inf,round_thresh=np.inf):
         datatest(root)
         _data=[]
         with open(f'{root}/.okdata') as f:
@@ -33,11 +33,11 @@ class Dataset(torch.utils.data.Dataset):
             p,m=lines[i*2:(i+1)*2]
             p=p.strip()
             m=np.float(m)
-            if thresh>m:
+            if cut_thresh>m:
                 _data.append(p)
-                print(p,m)
+                # print(p,m)
         self.data = _data
-        self.thresh = thresh
+        self.round_thresh = round_thresh
 
     def __len__(self):
         return len(self.data)
@@ -45,8 +45,8 @@ class Dataset(torch.utils.data.Dataset):
     def __getitem__(self, item):
         with open(self.data[item], 'rb') as f:
             data, target = pickle.load(f)
-        if self.thresh:
-            target[target > self.thresh] = self.thresh
+        if self.round_thresh:
+            target[target > self.round_thresh] = self.round_thresh
         return data.astype(np.float32), target.astype(np.float32)
 
 
@@ -91,14 +91,19 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument('--linux',default=False,action='store_true')
-    parser.add_argument('--thresh',default=np.inf,type=float)
+    parser.add_argument('--round_thresh',default=np.inf,type=float)
+    parser.add_argument('--cut_thresh',default=np.inf,type=float)
+    parser.add_argument('--savefolder',default='tmp')
+    parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101,, 4:fc_resnet151')
     args=parser.parse_args()
-    device='cuda' if torch.cuda.is_available() else 'cpu'
-    model=fc_resnet18().to(device)
+    # device='cuda' if torch.cuda.is_available() else 'cpu'
+    device='cuda'
+    models=[fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152]
+    model=models[args.model]().to(device)
     writer={}
     esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3',args.thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',args.thresh)
+    dataset=Dataset('J:/data3',cut_thresh=args.cut_thresh,round_thresh=args.round_thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',cut_thresh=args.cut_thresh,round_thresh=args.round_thresh)
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
@@ -106,7 +111,7 @@ if __name__=='__main__':
     lossf=nn.MSELoss()
     epochs=100
     est_epochs=200
-    savefolder=f'data/tmp'
+    savefolder=f'data/{args.savefolder}'
     os.makedirs(savefolder,exist_ok=True)
     data=torch.rand(116)
     for e in range(epochs):
