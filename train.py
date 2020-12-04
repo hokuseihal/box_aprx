@@ -24,8 +24,9 @@ class InputParam(nn.Module):
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, root, cut_thresh=np.inf,round_thresh=np.inf):
-        datatest(root)
+    def __init__(self, root, cut_thresh=np.inf,round_thresh=np.inf,renew_dataset=False):
+        if (not os.path.exists(f'{root}.okdata')) or renew_dataset:
+            datatest(root)
         _data=[]
         with open(f'{root}/.okdata') as f:
             lines=f.readlines()
@@ -96,6 +97,7 @@ if __name__=='__main__':
     parser.add_argument('--savefolder',default='tmp')
     parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101,, 4:fc_resnet151')
     parser.add_argument('--batchsize',default=256)
+    parser.add_argument('--renew_dataset',default=False,action='store_true')
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
@@ -104,7 +106,7 @@ if __name__=='__main__':
     writer={}
     esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3',cut_thresh=args.cut_thresh,round_thresh=args.round_thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',cut_thresh=args.cut_thresh,round_thresh=args.round_thresh)
+    dataset=Dataset('J:/data3',renew_dataset=args.renew_dataset,cut_thresh=args.cut_thresh,round_thresh=args.round_thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',renew_dataset=args.renew_dataset,cut_thresh=args.cut_thresh,round_thresh=args.round_thresh)
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
