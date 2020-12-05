@@ -25,7 +25,7 @@ class InputParam(nn.Module):
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, root, cut_thresh=np.inf,round_thresh=np.inf,renew_dataset=False):
-        if (not os.path.exists(f'{root}.okdata')) or renew_dataset:
+        if (not os.path.exists(f'{root}/.okdata')) or renew_dataset:
             datatest(root)
         _data=[]
         with open(f'{root}/.okdata') as f:
