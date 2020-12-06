@@ -6,6 +6,7 @@ from multiprocessing import cpu_count
 
 import numpy as np
 import torch
+from model.function import log_upper_standerdize
 import torch.nn as nn
 import torch.nn.functional as F
 from test.datatest import datatest
@@ -24,7 +25,14 @@ class InputParam(nn.Module):
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, root, cut_thresh=np.inf,round_thresh=np.inf,renew_dataset=False):
+    def __init__(self, root, args):
+        renew_dataset = args.renew_dataset
+        cut_thresh = args.cut_thresh
+        self.round_thresh = args.round_thresh
+        if args.standardize=='log':
+            self.standardize=log_upper_standerdize
+        else:
+            self.standardize=None
         if (not os.path.exists(f'{root}/.okdata')) or renew_dataset:
             datatest(root)
         _data=[]
@@ -38,7 +46,6 @@ class Dataset(torch.utils.data.Dataset):
                 _data.append(p)
                 # print(p,m)
         self.data = _data
-        self.round_thresh = round_thresh
 
     def __len__(self):
         return len(self.data)
@@ -48,6 +55,8 @@ class Dataset(torch.utils.data.Dataset):
             data, target = pickle.load(f)
         if self.round_thresh:
             target[target > self.round_thresh] = self.round_thresh
+        if self.standardize:
+            target=self.standardize(target)
         return data.astype(np.float32), target.astype(np.float32)
 
 
@@ -98,6 +107,7 @@ if __name__=='__main__':
     parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101,, 4:fc_resnet151')
     parser.add_argument('--batchsize',default=256)
     parser.add_argument('--renew_dataset',default=False,action='store_true')
+    parser.add_argument('--standardize',default=None)
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
@@ -106,7 +116,7 @@ if __name__=='__main__':
     writer={}
     esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3',renew_dataset=args.renew_dataset,cut_thresh=args.cut_thresh,round_thresh=args.round_thresh) if not args.linux else Dataset('../data/doboku/box_aprx/data3',renew_dataset=args.renew_dataset,cut_thresh=args.cut_thresh,round_thresh=args.round_thresh)
+    dataset=Dataset('J:/data3',args=args) if not args.linux else Dataset('../data/doboku/box_aprx/data3',args=args)
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)

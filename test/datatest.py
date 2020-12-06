@@ -22,7 +22,7 @@ def datatest(root):
             data=pickle.load(f)
             if (data[0].shape[0]==116) and (data[1].shape[0]==20):
                 ma.append(data[1].max())
-                print("OK",path,ma[-1])
+                print("OK",path,data[1].max(),data[0].min())
             else:
                 print("NG",path)
                 os.remove(path)
