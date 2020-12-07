@@ -54,7 +54,7 @@ class FC_ResNet(nn.Module):
         self.infc = nn.Linear(116, features[0])
         self.fcs = nn.ModuleList(
             [nn.Sequential(
-                *[block(features[idx],batchnorm) for _ in range(l)]
+                *[block(feature=features[idx],batchnorm=batchnorm) for _ in range(l)]
             ) for idx, l in enumerate(layers)]
         )
         self.changer=nn.ModuleList([nn.Linear(in_feature,out_feature) for in_feature,out_feature in zip(features[:-1],features[1:])])
@@ -90,11 +90,14 @@ def fc_resnet101():
 def fc_resnet152():
     return FC_ResNet(layers=[3, 8, 36, 3], block=BottleNeck)
 
+def fc_resnet304():
+    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024))
+
 if __name__=='__main__':
-    model=fc_resnet18()
+    model=fc_resnet304().cuda()
     optimizer=torch.optim.Adam(model.parameters())
-    output=model(torch.randn(3,116))
-    loss=output.mean()
+    output=model(torch.randn(32,116).cuda())
+    loss=output[-1].mean()
     loss.backward()
     optimizer.step()
     optimizer.zero_grad()
