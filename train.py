@@ -125,7 +125,7 @@ if __name__=='__main__':
     epochs=100
     est_epochs=200
     # savefolder=f'data/{args.savefolder}'
-    savefolder='data/'+"_".join([f'{k}:{args.__dict__[k]}' for k in args.__dict__])
+    savefolder='data/'+"_".join([f'{k}={args.__dict__[k]}' for k in args.__dict__])
     os.makedirs(savefolder,exist_ok=True)
     data=torch.rand(116)
     for e in range(epochs):
