@@ -130,5 +130,5 @@ if __name__=='__main__':
     for e in range(epochs):
         operate('train')
         operate('val')
-        save(model,savefolder,writer,f'')
+        save(model,savefolder,writer,args.__dict__,f'')
     estimate()

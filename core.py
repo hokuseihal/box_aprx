@@ -39,8 +39,11 @@ def savedic(dict,fol,title,save=True,):
     with open(f'{fol}/data.pkl','wb') as f:
         pickle.dump(dict,f)
 
-def save(model,fol,dic,title=''):
+def save(model,fol,dic,argdic,title=''):
+    import json
     savedmodelpath=f'{fol}/model.pth'
     savedic(dic,'/'.join(savedmodelpath.split('/')[:-1]),title)
     torch.save(model.state_dict(), savedmodelpath)
+    with open(f'{fol}/args.json','w') as f:
+        json.dump(argdic,f)
 
