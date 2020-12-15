@@ -116,7 +116,7 @@ if __name__=='__main__':
     writer={}
     esp=1e-3
     batchsize=1024
-    dataset=Dataset('J:/data3',args=args) if not args.linux else Dataset('../data/doboku/box_aprx/data3',args=args)
+    dataset=Dataset('D:/data3',args=args) if not args.linux else Dataset('../data/doboku/box_aprx/data3',args=args)
     traindataset,valdataset=torch.utils.data.random_split(dataset,[dsize:=int(len(dataset)*0.8),len(dataset)-dsize])
     trainloader=torch.utils.data.DataLoader(traindataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
     valloader=torch.utils.data.DataLoader(valdataset,batch_size=batchsize,num_workers=cpu_count(),shuffle=True)
