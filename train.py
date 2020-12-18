@@ -45,14 +45,15 @@ class Dataset(torch.utils.data.Dataset):
             if cut_thresh>m:
                 _data.append(p)
                 # print(p,m)
-            print(f'making dataset:{i/(len(lines)//2)*100:.2f}%')
+            print(f'\rmaking dataset:{i/(len(lines)//2)*100:.2f}%',end='')
         self.data = _data
+        print('')
 
         #load at first
         self.loaded_data=[]
         for i in range(len(self.data)):
             self.loaded_data.append(self.loaddata(i))
-            print(f'\rloading data:{i/len(data)*100:.2f}%')
+            print(f'\rloading data:{i/len(data)*100:.2f}%',end='')
 
     def __len__(self):
         return len(self.loaded_data)
