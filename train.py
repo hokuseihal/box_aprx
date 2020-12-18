@@ -53,7 +53,7 @@ class Dataset(torch.utils.data.Dataset):
         self.loaded_data=[]
         for i in range(len(self.data)):
             self.loaded_data.append(self.loaddata(i))
-            print(f'\rloading data:{i/len(data)*100:.2f}%',end='')
+            print(f'\rloading data:{i/len(self.data)*100:.2f}%',end='')
 
     def __len__(self):
         return len(self.loaded_data)
