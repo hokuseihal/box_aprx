@@ -59,6 +59,8 @@ class Dataset(torch.utils.data.Dataset):
             for i in range(len(self.data)):
                 self.loaded_data.append(self.loaddata(i))
                 print(f'\rloading data:{i/len(self.data)*100:.2f}%',end='')
+                if i>100:
+                    break
 
             with open(pklpath,'rb') as f:
                 pickle.dump(self.loaded_data,f)
