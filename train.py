@@ -62,7 +62,7 @@ class Dataset(torch.utils.data.Dataset):
                 if i>100:
                     break
 
-            with open(pklpath,'rb') as f:
+            with open(pklpath,'wb') as f:
                 pickle.dump(self.loaded_data,f)
 
     def __len__(self):
