@@ -45,12 +45,18 @@ class Dataset(torch.utils.data.Dataset):
             if cut_thresh>m:
                 _data.append(p)
                 # print(p,m)
+            print(f'making dataset:{i/(len(lines)//2)*100:.2f}%')
         self.data = _data
 
-    def __len__(self):
-        return len(self.data)
+        #load at first
+        self.loaded_data=[]
+        for i in range(len(self.data)):
+            self.loaded_data.append(self.loaddata(i))
+            print(f'\rloading data:{i/len(data)*100:.2f}%')
 
-    def __getitem__(self, item):
+    def __len__(self):
+        return len(self.loaded_data)
+    def loaddata(self,item):
         with open(self.data[item], 'rb') as f:
             data, target = pickle.load(f)
         if self.round_thresh:
@@ -59,6 +65,8 @@ class Dataset(torch.utils.data.Dataset):
             target=self.standardize(target)
         return data.astype(np.float32), target.astype(np.float32)
 
+    def __getitem__(self, item):
+        return self.loaded_data[item]
 
 def operate(phase):
     if phase=='train':
