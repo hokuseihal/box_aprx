@@ -29,31 +29,39 @@ class Dataset(torch.utils.data.Dataset):
         renew_dataset = args.renew_dataset
         cut_thresh = args.cut_thresh
         self.round_thresh = args.round_thresh
-        if args.standardize=='log':
-            self.standardize=log_upper_standerdize
+        pklpath=f'cash_{self.round_thresh}_{cut_thresh}_{args.standardize}.pkl'
+        if os.path.exists(pklpath):
+            with open(pklpath,'rb') as f:
+                self.loaded_data=pickle.load(f)
         else:
-            self.standardize=None
-        if (not os.path.exists(f'{root}/.okdata')) or renew_dataset:
-            datatest(root)
-        _data=[]
-        with open(f'{root}/.okdata') as f:
-            lines=f.readlines()
-        for i in range(len(lines)//2):
-            p,m=lines[i*2:(i+1)*2]
-            p=p.strip()
-            m=np.float(m)
-            if cut_thresh>m:
-                _data.append(p)
-                # print(p,m)
-            print(f'\rmaking dataset:{i/(len(lines)//2)*100:.2f}%',end='')
-        self.data = _data
-        print('')
+            if args.standardize=='log':
+                self.standardize=log_upper_standerdize
+            else:
+                self.standardize=None
+            if (not os.path.exists(f'{root}/.okdata')) or renew_dataset:
+                datatest(root)
+            _data=[]
+            with open(f'{root}/.okdata') as f:
+                lines=f.readlines()
+            for i in range(len(lines)//2):
+                p,m=lines[i*2:(i+1)*2]
+                p=p.strip()
+                m=np.float(m)
+                if cut_thresh>m:
+                    _data.append(p)
+                    # print(p,m)
+                print(f'\rmaking dataset:{i/(len(lines)//2)*100:.2f}%',end='')
+            self.data = _data
+            print('')
 
-        #load at first
-        self.loaded_data=[]
-        for i in range(len(self.data)):
-            self.loaded_data.append(self.loaddata(i))
-            print(f'\rloading data:{i/len(self.data)*100:.2f}%',end='')
+            #load at first
+            self.loaded_data=[]
+            for i in range(len(self.data)):
+                self.loaded_data.append(self.loaddata(i))
+                print(f'\rloading data:{i/len(self.data)*100:.2f}%',end='')
+
+            with open(pklpath,'rb') as f:
+                pickle.dump(self.loaded_data,f)
 
     def __len__(self):
         return len(self.loaded_data)
