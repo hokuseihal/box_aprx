@@ -87,7 +87,7 @@ if __name__=='__main__':
     writer={}
     esp=1e-3
     batchsize=args.batchsize
-    datafolder='D:/data3' if not args.linux else '/home/hokusei/data3'
+    datafolder='D:/data3' if not args.linux else '../data/doboku'
     optimizer=torch.optim.Adam(model.parameters())
     lossf=nn.MSELoss()
     epochs=100
