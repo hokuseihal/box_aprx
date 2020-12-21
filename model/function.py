@@ -1,7 +1,7 @@
 import numpy as np
-
+import torch
 def log_upper_standerdize(x):
-    x[x>np.e]=np.log(x[x>np.e])+np.e-1
+    x[x>np.e]=torch.log(x[x>np.e])+np.e-1
     return x
 
 if __name__=='__main__':
