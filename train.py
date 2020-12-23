@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from core import addvalue, save
 from model.FC_Resnet import fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152,fc_resnet304
+from model.bert import Bertbase,Bertlarge
 
 
 class InputParam(nn.Module):
@@ -75,19 +76,19 @@ if __name__=='__main__':
     parser.add_argument('--linux',default=False,action='store_true')
     parser.add_argument('--round_thresh',default=np.inf,type=float)
     parser.add_argument('--cut_thresh',default=np.inf,type=float)
-    parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101, 4:fc_resnet151, 5:fc_resnet304')
+    parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101, 4:fc_resnet151, 5:fc_resnet304, 6:bert_base,7:bert_large')
     parser.add_argument('--batchsize',default=256,type=int)
     parser.add_argument('--renew_dataset',default=False,action='store_true')
     parser.add_argument('--standardize',default='log')
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
-    models=[fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152,fc_resnet304]
+    models=[fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152,fc_resnet304,Bertbase,Bertlarge]
     model=models[args.model]().to(device)
     writer={}
     esp=1e-3
     batchsize=args.batchsize
-    datafolder='D:/data3' if not args.linux else '../data/doboku'
+    datafolder='/opt/data/doboku'
     optimizer=torch.optim.Adam(model.parameters())
     lossf=nn.MSELoss()
     epochs=100
