@@ -95,6 +95,7 @@ def fc_resnet304():
 
 if __name__=='__main__':
     model=fc_resnet304().cuda()
+    print(model)
     optimizer=torch.optim.Adam(model.parameters())
     output=model(torch.randn(32,116).cuda())
     loss=output[-1].mean()

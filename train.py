@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from core import addvalue, save
 from model.FC_Resnet import fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152,fc_resnet304
 from model.bert import Bertbase,Bertlarge
-
+from kfac import KFAC
 
 class InputParam(nn.Module):
     def __init__(self, data,device,optimizable=64):
@@ -48,6 +48,7 @@ def operate(phase):
             loss=sum([lossf(output,target.to(device)) for output in all_output])/len(all_output)
             if phase=='train':
                 loss.backward()
+                preconditioner.step()
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'{e}:{idx}, {loss.item():.4f},{phase}')
@@ -90,6 +91,7 @@ if __name__=='__main__':
     batchsize=args.batchsize
     datafolder='/opt/data/doboku'
     optimizer=torch.optim.Adam(model.parameters())
+    preconditioner=KFAC(model,0.1)
     lossf=nn.MSELoss()
     epochs=100
     est_epochs=200
