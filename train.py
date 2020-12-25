@@ -74,7 +74,7 @@ def estimate():
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
-    parser.add_argument('--linux',default=False,action='store_true')
+    # parser.add_argument('--linux',default=False,action='store_true')
     parser.add_argument('--round_thresh',default=np.inf,type=float)
     parser.add_argument('--cut_thresh',default=np.inf,type=float)
     parser.add_argument('--model',default=0,type=int,help='set integer, 0:fc_resnet18,, 1:fc_resnet34,, 2:fc_resnet50,, 3:fc_resnet101, 4:fc_resnet151, 5:fc_resnet304, 6:bert_base,7:bert_large')
