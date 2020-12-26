@@ -93,6 +93,9 @@ def fc_resnet152():
 def fc_resnet304():
     return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024))
 
+def fc_resnet304_batch():
+    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024),batchnorm=True)
+
 if __name__=='__main__':
     model=fc_resnet304().cuda()
     print(model)
