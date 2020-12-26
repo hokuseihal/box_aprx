@@ -71,30 +71,30 @@ class FC_ResNet(nn.Module):
         return [x]
 
 
-def fc_resnet18():
-    return FC_ResNet(layers=[2, 2, 2, 2], block=BasicBlock,batchnorm=True)
+def fc_resnet18(**kwargs):
+    return FC_ResNet(layers=[2, 2, 2, 2], block=BasicBlock,**kwargs)
 
 
-def fc_resnet34():
-    return FC_ResNet(layers=[3, 4, 6, 3], block=BasicBlock)
+def fc_resnet34(**kwargs):
+    return FC_ResNet(layers=[3, 4, 6, 3], block=BasicBlock,**kwargs)
 
 
-def fc_resnet50():
-    return FC_ResNet(layers=[3, 4, 6, 3], block=BottleNeck)
+def fc_resnet50(**kwargs):
+    return FC_ResNet(layers=[3, 4, 6, 3], block=BottleNeck,**kwargs)
 
 
-def fc_resnet101():
-    return FC_ResNet(layers=[3, 4, 23, 3], block=BottleNeck)
+def fc_resnet101(**kwargs):
+    return FC_ResNet(layers=[3, 4, 23, 3], block=BottleNeck,**kwargs)
 
 
-def fc_resnet152():
-    return FC_ResNet(layers=[3, 8, 36, 3], block=BottleNeck)
+def fc_resnet152(**kwargs):
+    return FC_ResNet(layers=[3, 8, 36, 3], block=BottleNeck,**kwargs)
 
-def fc_resnet304():
-    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024))
+def fc_resnet304(**kwargs):
+    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024),**kwargs)
 
-def fc_resnet304_batch():
-    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024),batchnorm=True)
+def fc_resnet304_batch(**kwargs):
+    return FC_ResNet(layers=[6,16,73,6],block=BottleNeck,features=(256,256,512,1024),**kwargs)
 
 if __name__=='__main__':
     model=fc_resnet304().cuda()

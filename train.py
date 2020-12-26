@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from model.function import log_upper_standerdize
 import torch.nn as nn
+from model.mish import Mish
 import torch.nn.functional as F
 from core import addvalue, save
 from model.FC_Resnet import *
@@ -82,11 +83,17 @@ if __name__=='__main__':
     parser.add_argument('--renew_dataset',default=False,action='store_true')
     parser.add_argument('--standardize',default='log')
     parser.add_argument('--optimizer',default='adam')
+    parser.add_argument('--activation',default='relu')
+    parser.add_argument('--nonbatchnorm',default=True,action='store_false')
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
+    if args.activation=='relu':
+        activation=nn.ReLU()
+    elif args.activation=='mish':
+        activation=Mish()
     models=[fc_resnet18,fc_resnet34,fc_resnet50,fc_resnet101,fc_resnet152,fc_resnet304,fc_resnet304_batch]
-    model=models[args.model]().to(device)
+    model=models[args.model](fn_activate=activation,batchnorm=not args.nonbatchnorm).to(device)
     writer={}
     esp=1e-3
     batchsize=args.batchsize
