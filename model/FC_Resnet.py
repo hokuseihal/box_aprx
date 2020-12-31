@@ -58,7 +58,7 @@ class FC_ResNet(nn.Module):
             ) for idx, l in enumerate(layers)]
         )
         self.changer=nn.ModuleList([nn.Linear(in_feature,out_feature) for in_feature,out_feature in zip(features[:-1],features[1:])])
-        self.outfc = nn.Linear(features[-1], 20)
+        self.outfc = nn.Linear(features[-1], 1)
         self.activate = fn_activate
         self.flow_loss=flow_loss
     def forward(self, x):
