@@ -42,8 +42,7 @@ def operate(phase):
     for idx,(data,target) in enumerate(iter(loader)):
         data=torch.from_numpy(data.numpy()).to(device)
         target=torch.from_numpy(target.numpy()).to(device).max(dim=1)[0]
-        if args.standardize=='log':
-            target=log_upper_standerdize(target)
+        target=standardizer(target)
         with torch.set_grad_enabled(phase=='train'):
             all_output=model(data.to(device))
             loss=sum([lossf(output,target.to(device)) for output in all_output])/len(all_output)
@@ -84,7 +83,7 @@ if __name__=='__main__':
     parser.add_argument('--standardize',default='log')
     parser.add_argument('--optimizer',default='adam')
     parser.add_argument('--activation',default='relu')
-    parser.add_argument('--nonbatchnorm',default=True,action='store_false')
+    parser.add_argument('--nonbatchnorm',default=False,action='store_true')
     args=parser.parse_args()
     # device='cuda' if torch.cuda.is_available() else 'cpu'
     device='cuda'
@@ -102,6 +101,13 @@ if __name__=='__main__':
         optimizer=torch.optim.Adam(model.parameters())
     elif args.optimizer=='sgd':
         optimizer = torch.optim.SGD(model.parameters(),1e-3)
+
+    if args.standardize=='log':
+        standardizer=log_upper_standerdize
+    elif args.standardize=='sigmoid':
+        standardizer=torch.sigmoid
+    else:
+        standardizer=lambda x :x
     preconditioner=KFAC(model,0.1)
     lossf=nn.MSELoss()
     epochs=100
