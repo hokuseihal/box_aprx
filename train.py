@@ -31,7 +31,7 @@ def operate(phase):
 
     for idx, (data, target) in enumerate(iter(loader)):
         data = torch.from_numpy(data.numpy()).to(device)
-        target = torch.from_numpy(target.numpy()).to(device).max(dim=1)[0]
+        target = torch.from_numpy(target.numpy()).to(device)
         target = standardizer(target)
         with torch.set_grad_enabled(phase == 'train'):
             all_output = model(data.to(device))
