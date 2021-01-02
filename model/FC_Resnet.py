@@ -49,7 +49,7 @@ class BottleNeck(nn.Module):
 
 
 class FC_ResNet(nn.Module):
-    def __init__(self, block, layers=(1, 2, 3, 4), features=(128, 128, 256, 512), fn_activate=nn.ReLU(),flow_loss=False,batchnorm=False):
+    def __init__(self, block, layers=(1, 2, 3, 4), features=(128, 128, 256, 512), fn_activate=nn.ReLU(),flow_loss=False,batchnorm=True,postactivator=lambda x:x):
         super(FC_ResNet, self).__init__()
         self.infc = nn.Linear(116, features[0])
         self.fcs = nn.ModuleList(
@@ -61,6 +61,7 @@ class FC_ResNet(nn.Module):
         self.outfc = nn.Linear(features[-1], 1)
         self.activate = fn_activate
         self.flow_loss=flow_loss
+        self.postactivator=postactivator
     def forward(self, x):
         x = self.activate(self.infc(x))
         for idx,fc in enumerate(self.fcs):
@@ -68,6 +69,7 @@ class FC_ResNet(nn.Module):
             if idx<3:
                 x=self.changer[idx](x)
         x=self.outfc(x)
+        x=self.postactivator(x)
         return [x]
 
 
